@@ -6,8 +6,8 @@ from selenium.webdriver.support.ui import WebDriverWait
 from keys import password, username
 
 option = webdriver.ChromeOptions()
-# option.add_argument("-incognito")
-# option.add_argument("--headless")
+option.add_argument("-incognito")
+option.add_argument("--headless")
 # option.add_argument("disable-gpu")
 
 browser = webdriver.Chrome(
