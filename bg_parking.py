@@ -3,89 +3,122 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
-from keys import chromedriver, password, url, username
+from keys import chromedriver, email_pass, email_user, me, password, url, username, you
+
+
+## EMAIL CONFIRMATION
+def email_confirmation(msg: str = None) -> None:
+    # Import smtplib for the actual sending function
+    import smtplib
+    from datetime import datetime, timedelta
+
+    # Import the email modules we'll need
+    from email.mime.text import MIMEText
+
+    if msg is None:
+        now = datetime.now()
+        then = now + timedelta(days=7)
+        now = now.strftime("%A, %B %e %Y")
+        then = then.strftime("%A, %B %e %Y")
+        msg = MIMEText(f"Booking made at {now} for {then}.")
+    else:
+        msg = MIMEText(msg)
+
+    msg["Subject"] = "Your Breckenridge Booking bot just ran"
+    msg["From"] = me
+    msg["To"] = you
+
+    # Send the message via our own SMTP server, but don't include the
+    # envelope header.
+    s = smtplib.SMTP("smtp.gmail.com", 587)
+    s.starttls()
+    s.login(email_user, email_pass)
+    s.sendmail(me, [you], msg.as_string())
+    s.quit()
+
 
 option = webdriver.ChromeOptions()
 option.add_argument("-incognito")
 option.add_argument("--headless")
 # option.add_argument("disable-gpu")
 
-browser = webdriver.Chrome(executable_path=chromedriver, options=option)
 
-browser.get(url)
+try:
 
-user = WebDriverWait(browser, 20).until(
-    EC.presence_of_element_located(
-        (
-            By.XPATH,
-            """/html/body/div/div[2]/div[2]/div/div/div[1]/form/div[2]/fieldset/div/input[1]""",
+    browser = webdriver.Chrome(executable_path=chromedriver, options=option)
+
+    browser.get(url)
+
+    user = WebDriverWait(browser, 20).until(
+        EC.presence_of_element_located(
+            (
+                By.XPATH,
+                """/html/body/div/div[2]/div[2]/div/div/div[1]/form/div[2]/fieldset/div/input[1]""",
+            )
         )
     )
-)
-user.send_keys(username)
+    user.send_keys(username)
 
-passwd = WebDriverWait(browser, 20).until(
-    EC.presence_of_element_located(
-        (
-            By.XPATH,
-            """/html/body/div/div[2]/div[2]/div/div/div[1]/form/div[2]/fieldset/div/input[2]""",
+    passwd = WebDriverWait(browser, 20).until(
+        EC.presence_of_element_located(
+            (
+                By.XPATH,
+                """/html/body/div/div[2]/div[2]/div/div/div[1]/form/div[2]/fieldset/div/input[2]""",
+            )
         )
     )
-)
 
+    passwd.send_keys(password)
 
-passwd.send_keys(password)
-
-login = WebDriverWait(browser, 20).until(
-    EC.element_to_be_clickable(
-        (
-            By.XPATH,
-            """/html/body/div/div[2]/div[2]/div/div/div[1]/form/div[2]/fieldset/div/div/button""",
+    login = WebDriverWait(browser, 20).until(
+        EC.element_to_be_clickable(
+            (
+                By.XPATH,
+                """/html/body/div/div[2]/div[2]/div/div/div[1]/form/div[2]/fieldset/div/div/button""",
+            )
         )
     )
-)
 
+    login.click()
 
-login.click()
-
-
-parking = WebDriverWait(browser, 20).until(
-    EC.element_to_be_clickable(
-        (By.XPATH, """/html/body/div/div[5]/div/div[2]/div/div[2]/div/div[2]/a""")
-    )
-)
-
-parking.click()
-
-
-day = WebDriverWait(browser, 20).until(
-    EC.element_to_be_clickable(
-        (
-            By.XPATH,
-            """/html/body/div/div[5]/div/div[2]/div[2]/div/div/div[4]/div[2]/div/div/div/table/tbody/tr[9]/td[4]/form/button""",
+    parking = WebDriverWait(browser, 20).until(
+        EC.element_to_be_clickable(
+            (By.XPATH, """/html/body/div/div[5]/div/div[2]/div/div[2]/div/div[2]/a""")
         )
     )
-)
-day.click()
 
+    parking.click()
 
-confirm = WebDriverWait(browser, 20).until(
-    EC.element_to_be_clickable(
-        (
-            By.XPATH,
-            """/html/body/div/div[5]/div/div[2]/form/div[2]/div/button""",
+    # THIS ASSUMES A WAITLIST.... FIX TO WORK FOR AVAILABLE DAYS TOO
+    day = WebDriverWait(browser, 20).until(
+        EC.element_to_be_clickable(
+            (
+                By.XPATH,
+                """/html/body/div/div[5]/div/div[2]/div[2]/div/div/div[4]/div[2]/div/div/div/table/tbody/tr[9]/td[4]/form/button""",
+            )
         )
     )
-)
-confirm.click()
+    day.click()
 
-
-confirm_again = WebDriverWait(browser, 20).until(
-    EC.element_to_be_clickable(
-        (
-            By.XPATH,
-            """/html/body/div/div[5]/div/div[2]/form/button""",
+    confirm = WebDriverWait(browser, 20).until(
+        EC.element_to_be_clickable(
+            (
+                By.XPATH,
+                """/html/body/div/div[5]/div/div[2]/form/div[2]/div/button""",
+            )
         )
     )
-)
-confirm_again.click()
+    confirm.click()
+
+    confirm_again = WebDriverWait(browser, 20).until(
+        EC.element_to_be_clickable(
+            (
+                By.XPATH,
+                """/html/body/div/div[5]/div/div[2]/form/button""",
+            )
+        )
+    )
+    confirm_again.click()
+    email_confirmation()
+except Exception as e:
+    email_confirmation(f"ERROR: {e}")
