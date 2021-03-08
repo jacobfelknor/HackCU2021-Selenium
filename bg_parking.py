@@ -2,12 +2,13 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.common.exceptions import TimeoutException
 
 from keys import chromedriver, email_pass, email_user, me, password, url, username, you
 
 
 ## EMAIL CONFIRMATION
-def email_confirmation(msg: str = None) -> None:
+def email_confirmation(msg: str = None, msg_prefix: str = "") -> None:
     # Import smtplib for the actual sending function
     import smtplib
     from datetime import datetime, timedelta
@@ -20,7 +21,7 @@ def email_confirmation(msg: str = None) -> None:
         then = now + timedelta(days=7)
         now = now.strftime("%A, %B %e %Y")
         then = then.strftime("%A, %B %e %Y")
-        msg = MIMEText(f"Booking made at {now} for {then}.")
+        msg = MIMEText(f"{msg_prefix}Booking made at {now} for {then}.")
     else:
         msg = MIMEText(msg)
 
@@ -89,7 +90,7 @@ try:
 
     parking.click()
 
-    # THIS ASSUMES A WAITLIST.... FIX TO WORK FOR AVAILABLE DAYS TOO
+    # this is the day a week from today
     day = WebDriverWait(browser, 20).until(
         EC.element_to_be_clickable(
             (
@@ -100,25 +101,49 @@ try:
     )
     day.click()
 
-    confirm = WebDriverWait(browser, 20).until(
-        EC.element_to_be_clickable(
-            (
-                By.XPATH,
-                """/html/body/div/div[5]/div/div[2]/form/div[2]/div/button""",
+    try:
+        # assume no waitlist
+        pick_car = WebDriverWait(browser, 20).until(
+            EC.element_to_be_clickable(
+                (
+                    By.XPATH,
+                    """/html/body/div/div[5]/div/div[1]/div/div[2]/div/div/div[2]/div/table/tbody/tr[2]/td[6]/button""",
+                )
             )
         )
-    )
-    confirm.click()
+        pick_car.click()
+        confirm = WebDriverWait(browser, 20).until(
+            EC.element_to_be_clickable(
+                (
+                    By.XPATH,
+                    """/html/body/div/div[5]/div/section[2]/div[2]/div/form/button""",
+                )
+            )
+        )
+        confirm.click()
+        email_confirmation()
+    except TimeoutException:
+        # must be waitlist?
+        confirm = WebDriverWait(browser, 20).until(
+            EC.element_to_be_clickable(
+                (
+                    By.XPATH,
+                    """/html/body/div/div[5]/div/div[2]/form/div[2]/div/button""",
+                )
+            )
+        )
+        confirm.click()
 
-    confirm_again = WebDriverWait(browser, 20).until(
-        EC.element_to_be_clickable(
-            (
-                By.XPATH,
-                """/html/body/div/div[5]/div/div[2]/form/button""",
+        confirm_again = WebDriverWait(browser, 20).until(
+            EC.element_to_be_clickable(
+                (
+                    By.XPATH,
+                    """/html/body/div/div[5]/div/div[2]/form/button""",
+                )
             )
         )
-    )
-    confirm_again.click()
-    email_confirmation()
+        confirm_again.click()
+        email_confirmation(msg_prefix="Waitlist ")
+
 except Exception as e:
     email_confirmation(f"ERROR: {e}")
