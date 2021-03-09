@@ -146,4 +146,4 @@ try:
         email_confirmation(msg_prefix="Waitlist ")
 
 except Exception as e:
-    email_confirmation(f"ERROR: {e}")
+    email_confirmation(f"{e.__class__.__name__}: {e}")
