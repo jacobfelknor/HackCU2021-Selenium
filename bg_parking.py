@@ -147,3 +147,7 @@ try:
 
 except Exception as e:
     email_confirmation(f"{e.__class__.__name__}: {e}")
+finally:
+    # close and quit browser to avoid zombies
+    browser.close()
+    browser.quit()
