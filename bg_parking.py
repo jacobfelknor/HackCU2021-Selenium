@@ -82,9 +82,24 @@ try:
 
     login.click()
 
+    try:
+        # pop up may be here bugging me
+        popup = WebDriverWait(browser, 20).until(
+            EC.element_to_be_clickable(
+                (
+                    By.XPATH,
+                    """/html/body/div[2]/div/div/div[2]/button[3]""",
+                )
+            )
+        )
+        popup.click()
+    except TimeoutException:
+        # assuming popup isn't there
+        pass
+
     parking = WebDriverWait(browser, 20).until(
         EC.element_to_be_clickable(
-            (By.XPATH, """/html/body/div/div[5]/div/div[2]/div/div[2]/div/div[2]/a""")
+            (By.XPATH, """/html/body/div/div[4]/div/div[2]/div/div[2]/div/div[2]/a""")
         )
     )
 
@@ -95,7 +110,7 @@ try:
         EC.element_to_be_clickable(
             (
                 By.XPATH,
-                """/html/body/div/div[5]/div/div[2]/div[2]/div/div/div[4]/div[2]/div/div/div/table/tbody/tr[9]/td[4]/form/button""",
+                """/html/body/div/div[4]/div/div[2]/div[2]/div/div/div[4]/div[2]/div/div/div/table/tbody/tr[8]/td[4]/form/button""",
             )
         )
     )
@@ -107,7 +122,7 @@ try:
             EC.element_to_be_clickable(
                 (
                     By.XPATH,
-                    """/html/body/div/div[5]/div/div[1]/div/div[2]/div/div/div[2]/div/table/tbody/tr[2]/td[6]/button""",
+                    """/html/body/div/div[4]/div/div[1]/div/div[2]/div/div/div[2]/div/table/tbody/tr[2]/td[6]/button""",
                 )
             )
         )
@@ -116,13 +131,14 @@ try:
             EC.element_to_be_clickable(
                 (
                     By.XPATH,
-                    """/html/body/div/div[5]/div/section[2]/div[2]/div/form/button""",
+                    """/html/body/div/div[4]/div/section[2]/div[2]/div/form/button""",
                 )
             )
         )
         confirm.click()
-        email_confirmation()
+        # email_confirmation()
     except TimeoutException:
+        # THIS WILL BE BROKEN - NO WAY TO TEST YET
         # must be waitlist?
         confirm = WebDriverWait(browser, 20).until(
             EC.element_to_be_clickable(
@@ -146,7 +162,8 @@ try:
         email_confirmation(msg_prefix="Waitlist ")
 
 except Exception as e:
-    email_confirmation(f"{e.__class__.__name__}: {e}")
+    print("uh oh")
+    # email_confirmation(f"{e.__class__.__name__}: {e}")
 finally:
     # close and quit browser to avoid zombies
     browser.close()
