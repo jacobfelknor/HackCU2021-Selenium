@@ -4,38 +4,40 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.common.exceptions import TimeoutException
 
-from keys import chromedriver, email_pass, email_user, me, password, url, username, you
-
+from keys import chromedriver, email_pass, email_user, me, password, url, username, you, sns_arn
 
 ## EMAIL CONFIRMATION
 def email_confirmation(msg: str = None, msg_prefix: str = "") -> None:
-    # Import smtplib for the actual sending function
-    import smtplib
+    import boto3
     from datetime import datetime, timedelta
 
-    # Import the email modules we'll need
-    from email.mime.text import MIMEText
+    now = datetime.now()
+    then = now + timedelta(days=7)
+    now = now.strftime("%A, %B %e %Y")
+    then = then.strftime("%A, %B %e %Y")
+    msg = f"{msg_prefix}Booking made on {now} for {then}."
 
-    if msg is None:
-        now = datetime.now()
-        then = now + timedelta(days=7)
-        now = now.strftime("%A, %B %e %Y")
-        then = then.strftime("%A, %B %e %Y")
-        msg = MIMEText(f"{msg_prefix}Booking made at {now} for {then}.")
-    else:
-        msg = MIMEText(msg)
+    subject = "Your Breckenridge Booking bot just ran"
 
-    msg["Subject"] = "Your Breckenridge Booking bot just ran"
-    msg["From"] = me
-    msg["To"] = you
-
-    # Send the message via our own SMTP server, but don't include the
-    # envelope header.
-    s = smtplib.SMTP("smtp.gmail.com", 587)
-    s.starttls()
-    s.login(email_user, email_pass)
-    s.sendmail(me, [you], msg.as_string())
-    s.quit()
+    # Send the message via SNS topic
+    client = boto3.client('sns')
+    client.publish(
+        TopicArn=sns_arn,
+        # TargetArn='string',
+        # PhoneNumber='string',
+        Message=msg,
+        Subject=subject,
+        # MessageStructure='string',
+        # MessageAttributes={
+        #     'string': {
+        #         'DataType': 'string',
+        #         'StringValue': 'string',
+        #         'BinaryValue': b'bytes'
+        #     }
+        # },
+        # MessageDeduplicationId='string', # only for fifo
+        # MessageGroupId='string' # only for fifo
+    )
 
 
 option = webdriver.ChromeOptions()
@@ -50,7 +52,7 @@ try:
 
     browser.get(url)
 
-    user = WebDriverWait(browser, 20).until(
+    user = WebDriverWait(browser, 10).until(
         EC.presence_of_element_located(
             (
                 By.XPATH,
@@ -60,7 +62,7 @@ try:
     )
     user.send_keys(username)
 
-    passwd = WebDriverWait(browser, 20).until(
+    passwd = WebDriverWait(browser, 10).until(
         EC.presence_of_element_located(
             (
                 By.XPATH,
@@ -71,7 +73,7 @@ try:
 
     passwd.send_keys(password)
 
-    login = WebDriverWait(browser, 20).until(
+    login = WebDriverWait(browser, 10).until(
         EC.element_to_be_clickable(
             (
                 By.XPATH,
@@ -84,7 +86,7 @@ try:
 
     try:
         # pop up may be here bugging me
-        popup = WebDriverWait(browser, 20).until(
+        popup = WebDriverWait(browser, 10).until(
             EC.element_to_be_clickable(
                 (
                     By.XPATH,
@@ -97,7 +99,7 @@ try:
         # assuming popup isn't there
         pass
 
-    parking = WebDriverWait(browser, 20).until(
+    parking = WebDriverWait(browser, 10).until(
         EC.element_to_be_clickable(
             (By.XPATH, """/html/body/div/div[4]/div/div[2]/div/div[2]/div/div[2]/a""")
         )
@@ -106,7 +108,7 @@ try:
     parking.click()
 
     # this is the day a week from today
-    day = WebDriverWait(browser, 20).until(
+    day = WebDriverWait(browser, 10).until(
         EC.element_to_be_clickable(
             (
                 By.XPATH,
@@ -118,7 +120,7 @@ try:
 
     try:
         # assume no waitlist
-        pick_car = WebDriverWait(browser, 20).until(
+        pick_car = WebDriverWait(browser, 10).until(
             EC.element_to_be_clickable(
                 (
                     By.XPATH,
@@ -127,7 +129,7 @@ try:
             )
         )
         pick_car.click()
-        confirm = WebDriverWait(browser, 20).until(
+        confirm = WebDriverWait(browser, 10).until(
             EC.element_to_be_clickable(
                 (
                     By.XPATH,
@@ -136,11 +138,11 @@ try:
             )
         )
         confirm.click()
-        # email_confirmation()
+        email_confirmation()
     except TimeoutException:
         # THIS WILL BE BROKEN - NO WAY TO TEST YET
         # must be waitlist?
-        confirm = WebDriverWait(browser, 20).until(
+        confirm = WebDriverWait(browser, 10).until(
             EC.element_to_be_clickable(
                 (
                     By.XPATH,
@@ -150,7 +152,7 @@ try:
         )
         confirm.click()
 
-        confirm_again = WebDriverWait(browser, 20).until(
+        confirm_again = WebDriverWait(browser, 10).until(
             EC.element_to_be_clickable(
                 (
                     By.XPATH,
@@ -163,7 +165,7 @@ try:
 
 except Exception as e:
     print("uh oh")
-    # email_confirmation(f"{e.__class__.__name__}: {e}")
+    email_confirmation(f"{e.__class__.__name__}: {e}")
 finally:
     # close and quit browser to avoid zombies
     browser.close()
