@@ -1,0 +1,12 @@
+selenium:
+    build: .
+    ports:
+        - 4000:4000
+    volumes:
+        - ./data/:/data/
+    # ONLY USED DURING LOCAL TESTING. USE ROLES IN AWS
+    # environment:
+    #   - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+    #   - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+
+    privileged: true

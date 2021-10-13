@@ -1,15 +1,21 @@
+import os
+
+from pyvirtualdisplay import Display
 from selenium import webdriver
+from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.common.exceptions import TimeoutException
 
-from keys import chromedriver, email_pass, email_user, me, password, url, username, you, sns_arn
+from keys import chromedriver, password, sns_arn, url, username
 
-## EMAIL CONFIRMATION
+# EMAIL CONFIRMATION
+
+
 def email_confirmation(msg: str = None, msg_prefix: str = "") -> None:
-    import boto3
     from datetime import datetime, timedelta
+
+    import boto3
 
     now = datetime.now()
     then = now + timedelta(days=7)
@@ -20,7 +26,7 @@ def email_confirmation(msg: str = None, msg_prefix: str = "") -> None:
     subject = "Your Breckenridge Booking bot just ran"
 
     # Send the message via SNS topic
-    client = boto3.client('sns')
+    client = boto3.client("sns", region_name="us-west-2")
     client.publish(
         TopicArn=sns_arn,
         # TargetArn='string',
@@ -40,9 +46,21 @@ def email_confirmation(msg: str = None, msg_prefix: str = "") -> None:
     )
 
 
+display = Display(visible=0, size=(800, 600))
+display.start()
+
 option = webdriver.ChromeOptions()
 option.add_argument("-incognito")
 option.add_argument("--headless")
+option.add_argument("--disable-dev-shm-usage")
+option.add_argument("--no-sandbox")
+option.add_experimental_option(
+    "prefs",
+    {
+        "download.default_directory": os.getcwd(),
+        "download.prompt_for_download": False,
+    },
+)
 # option.add_argument("disable-gpu")
 
 
@@ -100,9 +118,7 @@ try:
         pass
 
     parking = WebDriverWait(browser, 10).until(
-        EC.element_to_be_clickable(
-            (By.XPATH, """/html/body/div/div[4]/div/div[2]/div/div[2]/div/div[2]/a""")
-        )
+        EC.element_to_be_clickable((By.XPATH, """/html/body/div/div[4]/div/div[2]/div/div[2]/div/div[2]/a"""))
     )
 
     parking.click()
@@ -168,5 +184,6 @@ except Exception as e:
     email_confirmation(f"{e.__class__.__name__}: {e}")
 finally:
     # close and quit browser to avoid zombies
+    display.stop()
     browser.close()
     browser.quit()
