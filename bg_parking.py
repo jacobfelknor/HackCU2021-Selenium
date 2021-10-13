@@ -6,8 +6,7 @@ from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
-
-from keys import chromedriver, password, sns_arn, url, username
+from parameter_store import get_parameters_aws
 
 # EMAIL CONFIRMATION
 
@@ -28,7 +27,7 @@ def email_confirmation(msg: str = None, msg_prefix: str = "") -> None:
     # Send the message via SNS topic
     client = boto3.client("sns", region_name="us-west-2")
     client.publish(
-        TopicArn=sns_arn,
+        TopicArn=get_parameters_aws("breckenridge_parking_sns"),
         # TargetArn='string',
         # PhoneNumber='string',
         Message=msg,
@@ -66,8 +65,8 @@ option.add_experimental_option(
 
 try:
 
-    browser = webdriver.Chrome(executable_path=chromedriver, options=option)
-
+    browser = webdriver.Chrome(executable_path="/usr/bin/chromedriver", options=option)
+    url = get_parameters_aws("breckenridge_parking_url")
     browser.get(url)
 
     user = WebDriverWait(browser, 10).until(
@@ -78,7 +77,7 @@ try:
             )
         )
     )
-    user.send_keys(username)
+    user.send_keys(get_parameters_aws("breckenridge_parking_username"))
 
     passwd = WebDriverWait(browser, 10).until(
         EC.presence_of_element_located(
@@ -89,7 +88,7 @@ try:
         )
     )
 
-    passwd.send_keys(password)
+    passwd.send_keys(get_parameters_aws("breckenridge_parking_password"))
 
     login = WebDriverWait(browser, 10).until(
         EC.element_to_be_clickable(
