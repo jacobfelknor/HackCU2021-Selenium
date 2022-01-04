@@ -6,7 +6,7 @@ RUN apt update && apt install -y \
     python3 python3-pip \
     fonts-liberation libappindicator3-1 libasound2 libatk-bridge2.0-0 \
     libnspr4 libnss3 lsb-release xdg-utils libxss1 libdbus-glib-1-2 \
-    curl unzip wget \
+    curl unzip wget zlib1g \
     xvfb
 
 
@@ -29,7 +29,8 @@ RUN apt update && apt install -y \
 # install chromedriver and google-chrome
 
 RUN CHROMEDRIVER_VERSION=`curl -sS chromedriver.storage.googleapis.com/LATEST_RELEASE` && \
-    wget https://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip && \
+    # hardcoded version
+    wget https://chromedriver.storage.googleapis.com/95.0.4638.69/chromedriver_linux64.zip && \
     unzip chromedriver_linux64.zip -d /usr/bin && \
     chmod +x /usr/bin/chromedriver && \
     rm chromedriver_linux64.zip
@@ -52,7 +53,7 @@ RUN apt install chromium-browser -y
 
 RUN pip3 install selenium
 RUN pip3 install pyvirtualdisplay
-RUN pip3 install Selenium-Screenshot
+# RUN pip3 install Selenium-Screenshot
 RUN pip3 install boto3
 
 ENV LANG C.UTF-8

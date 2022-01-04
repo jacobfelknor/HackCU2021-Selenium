@@ -101,13 +101,19 @@ try:
 
     login.click()
 
+    parking = WebDriverWait(browser, 10).until(
+        EC.element_to_be_clickable((By.XPATH, """/html/body/div/div[4]/div/div[2]/div/div[2]/div/div[2]/a"""))
+    )
+
+    parking.click()
+
     try:
         # pop up may be here bugging me
         popup = WebDriverWait(browser, 10).until(
             EC.element_to_be_clickable(
                 (
                     By.XPATH,
-                    """/html/body/div[2]/div/div/div[2]/button[3]""",
+                    """/html/body/div[1]/div[5]/div/div/div/div[3]/button""",
                 )
             )
         )
@@ -115,12 +121,6 @@ try:
     except TimeoutException:
         # assuming popup isn't there
         pass
-
-    parking = WebDriverWait(browser, 10).until(
-        EC.element_to_be_clickable((By.XPATH, """/html/body/div/div[4]/div/div[2]/div/div[2]/div/div[2]/a"""))
-    )
-
-    parking.click()
 
     # this is the day a week from today
     day = WebDriverWait(browser, 10).until(
@@ -180,6 +180,7 @@ try:
 
 except Exception as e:
     print("uh oh")
+    print(e)
     email_confirmation(f"{e.__class__.__name__}: {e}")
 finally:
     # close and quit browser to avoid zombies
