@@ -40,7 +40,7 @@ def email_confirmation(msg: str = None, msg_prefix: str = "") -> None:
 
 option = webdriver.ChromeOptions()
 option.add_argument("-incognito")
-option.add_argument("--headless")
+# option.add_argument("--headless")
 # option.add_argument("disable-gpu")
 
 
@@ -50,7 +50,7 @@ try:
 
     browser.get(url)
 
-    user = WebDriverWait(browser, 20).until(
+    user = WebDriverWait(browser, 10).until(
         EC.presence_of_element_located(
             (
                 By.XPATH,
@@ -60,7 +60,7 @@ try:
     )
     user.send_keys(username)
 
-    passwd = WebDriverWait(browser, 20).until(
+    passwd = WebDriverWait(browser, 10).until(
         EC.presence_of_element_located(
             (
                 By.XPATH,
@@ -71,7 +71,7 @@ try:
 
     passwd.send_keys(password)
 
-    login = WebDriverWait(browser, 20).until(
+    login = WebDriverWait(browser, 10).until(
         EC.element_to_be_clickable(
             (
                 By.XPATH,
@@ -82,20 +82,20 @@ try:
 
     login.click()
 
-    parking = WebDriverWait(browser, 20).until(
+    parking = WebDriverWait(browser, 10).until(
         EC.element_to_be_clickable(
-            (By.XPATH, """/html/body/div/div[5]/div/div[2]/div/div[2]/div/div[2]/a""")
+            (By.XPATH, """/html/body/div/div[4]/div/div[2]/div/div[2]/div/div[2]/a""")
         )
     )
 
     parking.click()
 
     # this is the day a week from today
-    day = WebDriverWait(browser, 20).until(
+    day = WebDriverWait(browser, 10).until(
         EC.element_to_be_clickable(
             (
                 By.XPATH,
-                """/html/body/div/div[5]/div/div[2]/div[2]/div/div/div[4]/div[2]/div/div/div/table/tbody/tr[9]/td[4]/form/button""",
+                """/html/body/div/div[4]/div/div[2]/div[2]/div/div/div[4]/div[2]/div/div/div/table/tbody/tr[9]/td[4]/form/button""",
             )
         )
     )
@@ -103,20 +103,20 @@ try:
 
     try:
         # assume no waitlist
-        pick_car = WebDriverWait(browser, 20).until(
+        pick_car = WebDriverWait(browser, 10).until(
             EC.element_to_be_clickable(
                 (
                     By.XPATH,
-                    """/html/body/div/div[5]/div/div[1]/div/div[2]/div/div/div[2]/div/table/tbody/tr[2]/td[6]/button""",
+                    """/html/body/div/div[4]/div/div[1]/div/div[2]/div/div/div[2]/div/table/tbody/tr[2]/td[6]/button""",
                 )
             )
         )
         pick_car.click()
-        confirm = WebDriverWait(browser, 20).until(
+        confirm = WebDriverWait(browser, 10).until(
             EC.element_to_be_clickable(
                 (
                     By.XPATH,
-                    """/html/body/div/div[5]/div/section[2]/div[2]/div/form/button""",
+                    """/html/body/div/div[4]/div/section[2]/div[2]/div/form/button""",
                 )
             )
         )
@@ -124,21 +124,21 @@ try:
         email_confirmation()
     except TimeoutException:
         # must be waitlist?
-        confirm = WebDriverWait(browser, 20).until(
+        confirm = WebDriverWait(browser, 10).until(
             EC.element_to_be_clickable(
                 (
                     By.XPATH,
-                    """/html/body/div/div[5]/div/div[2]/form/div[2]/div/button""",
+                    """/html/body/div/div[4]/div/div[2]/form/div[2]/div/button""",
                 )
             )
         )
         confirm.click()
 
-        confirm_again = WebDriverWait(browser, 20).until(
+        confirm_again = WebDriverWait(browser, 10).until(
             EC.element_to_be_clickable(
                 (
                     By.XPATH,
-                    """/html/body/div/div[5]/div/div[2]/form/button""",
+                    """/html/body/div/div[4]/div/div[2]/form/button""",
                 )
             )
         )
