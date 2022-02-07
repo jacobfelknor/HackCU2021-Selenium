@@ -1,10 +1,22 @@
+from email.mime.multipart import MIMEMultipart
+
 from selenium import webdriver
+from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.common.exceptions import TimeoutException
 
-from keys import chromedriver, email_pass, email_user, me, password, url, username, you
+from keys import (
+    chromedriver,
+    email_link_url,
+    email_pass,
+    email_user,
+    me,
+    password,
+    url,
+    username,
+    you,
+)
 
 
 ## EMAIL CONFIRMATION
@@ -21,7 +33,27 @@ def email_confirmation(msg: str = None, msg_prefix: str = "") -> None:
         then = now + timedelta(days=7)
         now = now.strftime("%A, %B %e %Y")
         then = then.strftime("%A, %B %e %Y")
-        msg = MIMEText(f"{msg_prefix}Booking made at {now} for {then}.")
+        msg = MIMEMultipart("alternative")
+        plain = MIMEText(
+            f"{msg_prefix}Parking reserved at Grand Lodge Peak 7 for {then}.", "plain"
+        )
+        html_contents = f"""
+        <html>
+            <head></head>
+            <body>
+                <p>
+                    {msg_prefix}Parking reserved at Grand Lodge Peak 7 for <b>{then}</b>.
+                    <br><br>
+                    Click <a href="{email_link_url}">here</a> to view.
+                    <br><br>
+                    Your Breck Bot
+                </p>
+            </body>
+        </html>
+        """
+        html = MIMEText(html_contents, "html")
+        msg.attach(plain)
+        msg.attach(html)
     else:
         msg = MIMEText(msg)
 
