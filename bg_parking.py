@@ -1,5 +1,6 @@
+from webdriver_manager.chrome import ChromeDriverManager
 from email.mime.multipart import MIMEMultipart
-
+from selenium.webdriver.chrome.service import Service as ChromeService
 from selenium import webdriver
 from selenium.common.exceptions import TimeoutException
 from selenium.webdriver.common.by import By
@@ -7,7 +8,6 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
 from keys import (
-    chromedriver,
     email_link_url,
     email_pass,
     email_user,
@@ -77,8 +77,9 @@ option.add_argument("--headless")
 
 
 try:
+    driver_manager = ChromeDriverManager().install()
 
-    browser = webdriver.Chrome(executable_path=chromedriver, options=option)
+    browser = webdriver.Chrome(service=ChromeService(driver_manager), options=option)
 
     browser.get(url)
 
