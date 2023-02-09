@@ -1,0 +1,26 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+webdriver-manager = "*"
+black = "*"
+click = "*"
+flake8 = "*"
+mccabe = "*"
+mypy-extensions = "*"
+pathspec = "*"
+platformdirs = "*"
+pycodestyle = "*"
+pyflakes = "*"
+regex = "*"
+selenium = "*"
+tomli = "*"
+typing-extensions = "*"
+urllib3 = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.10"
