@@ -75,6 +75,11 @@ option.add_argument("-incognito")
 option.add_argument("--headless")
 # option.add_argument("disable-gpu")
 
+def js_click(browser, clickable):
+    browser.execute_script("arguments[0].click();", clickable)
+
+# def get_element(browser, selector):
+#     return browser.find_element(*selector)
 
 try:
     driver_manager = ChromeDriverManager().install()
@@ -113,7 +118,7 @@ try:
         )
     )
 
-    login.click()
+    js_click(browser, login)
 
     parking = WebDriverWait(browser, 10).until(
         EC.element_to_be_clickable(
@@ -121,7 +126,7 @@ try:
         )
     )
 
-    parking.click()
+    js_click(browser, parking)
 
     # this is the day a week from today
     day = WebDriverWait(browser, 10).until(
@@ -132,7 +137,7 @@ try:
             )
         )
     )
-    day.click()
+    js_click(browser, day)
 
     try:
         # assume no waitlist
@@ -144,7 +149,7 @@ try:
                 )
             )
         )
-        pick_car.click()
+        js_click(browser, pick_car)
         confirm = WebDriverWait(browser, 10).until(
             EC.element_to_be_clickable(
                 (
@@ -153,7 +158,7 @@ try:
                 )
             )
         )
-        confirm.click()
+        js_click(browser, confirm)
         email_confirmation()
     except TimeoutException:
         # must be waitlist?
@@ -165,7 +170,7 @@ try:
                 )
             )
         )
-        confirm.click()
+        js_click(browser, confirm)
 
         confirm_again = WebDriverWait(browser, 10).until(
             EC.element_to_be_clickable(
@@ -175,7 +180,7 @@ try:
                 )
             )
         )
-        confirm_again.click()
+        js_click(browser, confirm_again)
         email_confirmation(msg_prefix="Waitlist ")
 
 except Exception as e:
